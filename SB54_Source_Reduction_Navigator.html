@@ -19,6 +19,45 @@
   </noscript>
 </head>
 <body>
+  <!-- PASSWORD GATE: replace PLACEHOLDER_HASH with your SHA-256 hash -->
+  <div id="__pw_gate" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#324943;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">
+    <div style="background:#fff;border-radius:16px;padding:40px 44px;box-shadow:0 8px 40px rgba(0,0,0,0.28);width:340px;text-align:center;">
+      <div style="font-size:28px;margin-bottom:8px;">🔒</div>
+      <h2 style="color:#2a3d38;font-size:18px;font-weight:700;margin-bottom:6px;">SB 54 Navigator</h2>
+      <p style="color:#5a6e69;font-size:13px;margin-bottom:22px;">Enter your access code to continue.</p>
+      <input id="__pw_input" type="password" placeholder="Access code" autocomplete="current-password"
+        style="width:100%;padding:11px 14px;border:1.5px solid #c8d8d4;border-radius:9px;font-size:15px;outline:none;color:#2a3d38;box-sizing:border-box;margin-bottom:12px;"
+        onkeydown="if(event.key==='Enter')document.getElementById('__pw_btn').click()">
+      <button id="__pw_btn" onclick="__checkPW()"
+        style="width:100%;padding:11px;background:#324943;color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:600;cursor:pointer;">
+        Unlock
+      </button>
+      <div id="__pw_err" style="color:#c0392b;font-size:13px;margin-top:10px;min-height:18px;"></div>
+    </div>
+  </div>
+  <script>
+    const CORRECT_HASH = 'e3c652f0ba0b4801205814f8b6bc49672c4c74e25b497770bb89b22cdeb4e951';
+    async function __checkPW() {
+      const val = document.getElementById('__pw_input').value;
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(val));
+      const hash = [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2,'0')).join('');
+      if (hash === CORRECT_HASH) {
+        document.getElementById('__pw_gate').remove();
+        localStorage.setItem('sb54_auth', hash);
+      } else {
+        const el = document.getElementById('__pw_err');
+        el.textContent = 'Incorrect access code.';
+        document.getElementById('__pw_input').value = '';
+      }
+    }
+    // Auto-unlock if previously authenticated
+    (async () => {
+      const stored = localStorage.getItem('sb54_auth');
+      if (stored && stored === CORRECT_HASH) {
+        document.getElementById('__pw_gate').remove();
+      }
+    })();
+  </script>
   <div id="__bundler_thumbnail">
 <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
 <rect width="400" height="300" fill="#324943"></rect>
